@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OpenWater</title>
+
+<!--Basic boilerplate website libraries (bootstrap, jquery, etc)-->
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.3/angular.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.3/angular-route.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<script src="csv/csv.min.js"></script>
+
+<!-- Auth0Lock script -->
+<script src="//cdn.auth0.com/js/lock/10.0/lock.min.js"></script>
+
+<!-- Setting the right viewport -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+<!--leaflet!-->
+<link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.css" />
+<script src="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.js"></script>
+
+<!--data tables-->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs-3.3.6/jqc-1.12.3/dt-1.10.12/b-1.2.1/b-colvis-1.2.1/cr-1.3.2/fh-3.1.2/r-2.1.0/sc-1.4.2/se-1.2.0/datatables.min.css"/>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs-3.3.6/jqc-1.12.3/dt-1.10.12/b-1.2.1/b-colvis-1.2.1/cr-1.3.2/fh-3.1.2/r-2.1.0/sc-1.4.2/se-1.2.0/datatables.min.js"></script>
+
+<!--my stylesheet-->
+<link rel="stylesheet" type="text/css" href="mystyle.css">
+</head>
+
+<body>
+
+<!--the navigation bar-->
+<nav class="navbar navbar-inverse" role="navigation">
+  <div class="navbar-collapse collapse">
+    <ul class="nav navbar-nav navbar-left">
+      <li><a class="navbar-brand" rel="home" href="">
+        <img style="max-width:200px; margin-top: -7px;"
+             src="/images/OpenROV.png"></a></li>
+      <li class="active"><a href="/">Home<span class="sr-only">(current)</span></a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right" id="logs">
+      <li><input id="btn-login" class="btn btn-primary btn-login" type="submit" value="Login"/></li>
+      <li><input id="btn-logout" class="btn btn-primary btn-login hide" type="submit" value="Logout"/></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="txt">
+  <h2> Welcome to OpenWater.</h2>
+  <h4> Use the following initial filters to get the data sets you want.</h4>
+  <h3 id="loginTxt"> Login to get started. </h3>
+</div>
+
+<!--the filtering form-->
+<div class="container col-xs-4">
+  <form class="form-vertical" role="form" style="width: 100%;">
+      <div class="form-group">
+        <label for="sel1">Start Month:</label>
+        <select class="form-control" id="sel1">
+              <option value=''>All</option>
+              <option value=1>January</option>
+              <option value=2>February</option>
+              <option value=3>March</option>
+              <option value=4>April</option>
+              <option value=5>May</option>
+              <option value=6>June</option>
+              <option value=7>July</option>
+              <option value=8>August</option>
+              <option value=9>September</option>
+              <option value=10>October</option>
+              <option value=11>November</option>
+              <option value=12>December</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="sel2">End Month:</label>
+        <select class="form-control" id="sel2">
+              <option value=''>All</option>
+              <option value=1>January</option>
+              <option value=2>February</option>
+              <option value=3>March</option>
+              <option value=4>April</option>
+              <option value=5>May</option>
+              <option value=6>June</option>
+              <option value=7>July</option>
+              <option value=8>August</option>
+              <option value=9>September</option>
+              <option value=10>October</option>
+              <option value=11>November</option>
+              <option value=12>December</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="sel3">Start Year:</label>
+        <select class="form-control" id="sel3">
+              <option value=''>All</option>
+              <option value=2015>2015</option>
+              <option value=2016>2016</option>
+              <option value=2017>2017</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="sel4">End Year:</label>
+        <select class="form-control" id="sel4">
+              <option value=''>All</option>
+              <option value=2015>2015</option>
+              <option value=2016>2016</option>
+              <option value=2017>2017</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="sel5">Continent:</label>
+        <select class="form-control" id="sel5">
+              <option value=''>All</option>
+              <option value="Africa">Africa</option>
+              <option value="Australia">Australia</option>
+              <option value="North America">North America</option>
+              <option value="South America">South America</option>
+              <option value="Europe">Europe</option>
+              <option value="Asia">Asia</option>
+              <option value="Antarctica">Antarctica</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Type of Data (results contain all checked types):</label> <br/>
+        <label class="checkbox-inline"><input type="checkbox" id="d" value="depth">Depth</label>
+        <label class="checkbox-inline"><input type="checkbox" id="t" value="temp">Temperature</label>
+        <label class="checkbox-inline"><input type="checkbox" id ="l" value="light">Light</label>
+      </div>
+
+      <div class="form-group">
+          <button id="submit" type="button" class="btn btn-primary disabled" 
+          onclick="sendData()" >Find Data</button>
+      </div>
+
+    </div>
+    </div>
+  </form>
+</div>
+
+<!--the data results table-->
+<div class="container col-xs-7">
+  <div style="margin-top:-75px;" id="dtable" class="hide">
+    <table id="test" class="display">
+      <caption>Click on a row to download data file.</caption>
+      <thead>
+          <tr>
+              <th>Dive Date</th>
+              <th>Types of Data</th>
+              <th>Location</th>
+              <th>Max Depth (m)</th>
+              <th>Session ID</th>
+          </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+
+  $(document).ready( function () {
+    $('#test').DataTable(
+     {
+        scrollY:'50vh',
+        scrollCollapse: true,
+        paging: false,
+        "columns": [{"name": "first", "orderable": true},
+                    {"name": "second", "orderable": true},
+                    {"name": "third", "orderable": true},
+                    {"name": "fourth", "orderable": true},
+                    {"name": "fifth", "visible": false}]});  
+  });
+
+  var lock = new Auth0Lock('BWcCxwJdMnHP7Y3pKCNtbp5IA6o5lKlb', 'openrov.auth0.com');
+  var myToken = localStorage.getItem('id_token');
+  var myProf = localStorage.getItem('id_profile');
+
+  var socket = null;
+  var socketiourl = null;
+
+  // Once the user has been authorized, this method is called and 
+  // creates the socket connection to data.openrov.org
+  function start (profile, token) {
+        socketiourl = profile.dataOpenROVcom.service_url + '/dataapi_10/socket.io.js';
+        $.getScript(socketiourl,function(){
+
+        socket = io(profile.dataOpenROVcom.service_url, {
+            path: '/dataapi_10',
+            'multiplex': false,
+            query: 'token=' + token,
+            transports: ['websocket'],
+            reconnection:false,
+            timeout:30000,
+            "force new connection": true,
+            "connect timeout" : 5000});
+
+
+        socket.on('connect',function(){
+          //enable the form button so queries can go through.
+          $("#submit").removeClass('disabled').addClass('active');
+        });
+        activated();
+        //updates navbar
+        $("#btn-login").addClass('hide');
+        $("#loginTxt").addClass('hide');
+        $("#btn-logout").removeClass('hide').addClass('active');
+        $('#logs').prepend('<li><img class="profIcon" src="' + profile.picture + '" /></li>');
+
+        }).fail(function( jqxhr, settings, exception ) {
+    	    console.log("ERROR");
+        });
+  }
+
+  // listener for the login button
+  document.getElementById('btn-login').addEventListener('click', function() {
+    lock.show({ authParams: { scope: 'openid profile offline_access' },icon:'https://s3.amazonaws.com/openrov-com-assets/openrov_community_banner_690x138.png',socialBigButtons: true },function (err, profile, token, access_token, state, refresh_token) {
+     });
+  });
+
+  // listener for the logout button
+  document.getElementById('btn-logout').addEventListener('click', function() {
+      localStorage.removeItem('id_token');
+      window.location.href = "/";
+  });
+
+  //method called when the lock is authenticated that calls start
+  lock.on("authenticated", function(authResult) {
+    lock.getProfile(authResult.idToken, function(error, profile) {
+      if (error) {
+        return;
+      }
+      localStorage.setItem('id_token', authResult.idToken);
+      localStorage.setItem('profile', JSON.stringify(profile));
+      start(profile, authResult.idToken);
+    });
+  });
+
+  //retrieve the profile:
+  var id_token = localStorage.getItem('id_token');
+  if (id_token) {
+    lock.getProfile(id_token, function (err, profile) {
+      if (err) {
+        return alert('There was an error getting the profile: ' + err.message);
+      }
+      start (profile, id_token);
+    });
+  }
+
+ //method that uses socket connection to send query data to data.openrov.org
+ function sendData () {
+   var a = document.getElementById("sel1");
+   var b = document.getElementById("sel2");
+   var c = document.getElementById("sel3");
+   var d = document.getElementById("sel4");
+   var e = document.getElementById("sel5");
+   var sensors = [];
+   if (document.getElementById("d").checked) {
+     sensors.push("depth");
+   }
+   if (document.getElementById("t").checked) {
+     sensors.push("temp");
+   }
+   if (document.getElementById("l").checked) {
+     sensors.push("light");
+   }
+
+   var json = {"startMonth": a.options[a.selectedIndex].value, 
+              "endMonth": b.options[b.selectedIndex].value,
+              "startYear": c.options[c.selectedIndex].value,
+              "endYear": d.options[d.selectedIndex].value,
+              "continent": e.options[e.selectedIndex].value,
+              "typesOfData": sensors};
+   socket.emit('query-session', json);
+ }
+
+//socket connection establishmen makes these methods available 
+function activated () {
+
+ //listens for the data results and displays them on the webpage
+ socket.on('query-session-results', function(jsonAr) {
+   document.getElementById('dtable').className="display";
+   var table = $('#test').DataTable();
+   table.clear().draw();
+   if(jsonAr.length != 0) {
+   jsonAr.forEach(function(d) {
+      var typeOfData = d.sensorTypes;
+      if (typeOfData == undefined) {
+        typeOfData = "unknown";
+      } else {
+        console.log(typeOfData.join([separator = ' ']));
+        dataTypesStr = typeOfData.join([separator = ' '])
+      }
+      var eventDate = d.date;
+      if (eventDate == undefined) {
+        eventDate = "unknown";
+      }
+      var location = d.location;
+      if (location == undefined) {
+        location = "unknown";
+      }
+      var mDepth = d.maxDepth;
+      if (mDepth == undefined) {
+        mDepth = "unknown";
+      }
+
+      var sesID = d.sessionID;
+      if (sesID == undefined) {
+        sesID = "";
+      }
+      table.row.add([eventDate, dataTypesStr, location, mDepth, sesID]).draw();
+   })}});
+
+
+  //on row click, sends request for full data set
+  $('#test tbody').on( 'click', 'tr', function () {
+      var r = $('#test').DataTable().row(this);
+      socket.emit('get-data-file', r.data()[4]); 
+  });
+
+  //listens for the results of the full data file, converts it to a csv
+  //and downloads file.
+  //!!!!
+  //THIS PART WILL NEED TO GET FIXED EVENTUALLY.
+  //!!!!
+  socket.on('data-file-results', function(dataAr) {
+    var cleanedData = [["Time", "Depth", "Temp"]];
+    dataAr.forEach(function(d) {
+      //ADD A CHECK HERE TO MAKE SURE NONE OF THESE VALUES ARE UNDEFINED.
+      var lineAr = [new Date(d.timestamp).toUTCString(), d.data.depth, d.data.temp];
+      cleanedData.push(lineAr);
+    })
+    var csv = new CSV(cleanedData);
+    var encoded = csv.encode();
+    var blob = new Blob([encoded], { 'type': 'application/octet-stream' });
+    var link = document.createElement("a");
+    link.setAttribute('href', window.URL.createObjectURL(blob));
+    link.setAttribute("download", dataAr[0].sessionID+".csv");
+    link.setAttribute('target','_blank');
+    document.body.appendChild(link);
+    link.click();
+  });
+
+  // // function gives you the date is dd/mm/yy format
+  // function convertDate(inputFormat) {
+  //   function pad(s) { return (s < 10) ? '0' + s : s; }
+  //   var d = new Date(inputFormat);
+  //   return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/');
+  // }
+
+  var log = function(str){
+      console.log(str);
+  }
+  var log_trace = function(str){
+      console.log(str);
+  }
+
+ //boilerplate socket listeners   
+ socket.on("error", function(error) {
+  if (error.type == "UnauthorizedError" || error.code == "invalid_token") {
+    log("User's token has expired");
+  }
+});
+
+socket.on('close', function() {
+  if (isSyncing){
+    log_trace('sync socket.io closed');
+    isSyncing=false;
+    reject(new Error('socket.io connection closed'));
+  }});
+
+socket.on('connect_timeout',function(){
+  reject(new Error('Connection timed out'));
+});
+
+}
+
+</script>
+</body>
+</html>
